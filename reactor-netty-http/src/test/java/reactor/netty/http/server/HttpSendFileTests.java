@@ -312,7 +312,7 @@ class HttpSendFileTests {
 		Path largeFile = Paths.get(getClass().getResource("/largeFile.txt").toURI());
 		Path largeFileParent = largeFile.getParent();
 		assertThat(largeFileParent).isNotNull();
-		Path tempFile = Files.createTempFile(largeFileParent,"temp", ".txt");
+		Path tempFile = Files.createTempFile(largeFileParent, "temp", ".txt");
 		tempFile.toFile().deleteOnExit();
 
 		byte[] fileBytes = Files.readAllBytes(largeFile);

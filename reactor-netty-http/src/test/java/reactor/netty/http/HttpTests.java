@@ -143,7 +143,9 @@ class HttpTests {
 		DisposableServer server =
 				HttpServer.create()
 				          .port(0)
-						  .route(r -> r.get("/test", (req, res) -> {throw new RuntimeException("test");})
+						  .route(r -> r.get("/test", (req, res) -> {
+						                   throw new RuntimeException("test");
+						               })
 						               .get("/test2", (req, res) -> res.send(Flux.error(new Exception("test2")))
 						                                                 .then()
 						                                                 .log("send-1")

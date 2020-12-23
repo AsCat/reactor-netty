@@ -38,7 +38,7 @@ public interface ConnectionObserver {
 	 *
 	 * @return a noop connection listener
 	 */
-	static ConnectionObserver emptyListener(){
+	static ConnectionObserver emptyListener() {
 		return ReactorNetty.NOOP_LISTENER;
 	}
 
@@ -47,7 +47,7 @@ public interface ConnectionObserver {
 	 *
 	 * @return current {@link Context} or {@link Context#empty()}
 	 */
-	default Context currentContext(){
+	default Context currentContext() {
 		return Context.empty();
 	}
 

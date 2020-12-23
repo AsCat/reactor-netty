@@ -146,7 +146,7 @@ class ChannelOperationsHandlerTest {
 
 		Future<?> f = threadPool.submit(abortServer);
 
-		if(!abortServer.await(10, TimeUnit.SECONDS)){
+		if (!abortServer.await(10, TimeUnit.SECONDS)) {
 			throw new IOException("Fail to start test server");
 		}
 
@@ -232,7 +232,7 @@ class ChannelOperationsHandlerTest {
 
 		Future<?> f = threadPool.submit(testServer);
 
-		if(!testServer.await(10, TimeUnit.SECONDS)){
+		if (!testServer.await(10, TimeUnit.SECONDS)) {
 			throw new IOException("Fail to start test server");
 		}
 
@@ -299,7 +299,7 @@ class ChannelOperationsHandlerTest {
 				}
 			}
 			catch (IOException e) {
-				log.error("TestServer" ,e);
+				log.error("TestServer", e);
 			}
 		}
 

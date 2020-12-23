@@ -567,7 +567,7 @@ class ConnectionInfoTests {
 
 		String uri = "/test";
 		if (useHttps) {
-			uri += ("https://localhost:" + this.connection.port());
+			uri += "https://localhost:" + this.connection.port();
 		}
 
 		String response =
@@ -590,7 +590,7 @@ class ConnectionInfoTests {
 
 	@AfterEach
 	void tearDown() {
-		if(null != this.connection) {
+		if (null != this.connection) {
 			this.connection.disposeNow();
 		}
 	}
