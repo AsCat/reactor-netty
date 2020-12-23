@@ -20,8 +20,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.netty.DisposableServer;
-import reactor.netty.http.server.HttpServer;
+import reactor.netty.BaseHttpTest;
 import reactor.netty.http.server.WebsocketServerSpec;
 import reactor.test.StepVerifier;
 
@@ -33,7 +32,7 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * @author Violeta Georgieva
  */
-class WebsocketClientOperationsTest {
+class WebsocketClientOperationsTest extends BaseHttpTest {
 
 	@Test
 	void requestError() {
@@ -52,9 +51,8 @@ class WebsocketClientOperationsTest {
 
 	private void failOnClientServerError(
 			int serverStatus, String serverSubprotocol, String clientSubprotocol) {
-		DisposableServer httpServer =
-				HttpServer.create()
-				         .port(0)
+		disposableServer =
+				createServer()
 				          .route(routes ->
 				              routes.post("/login", (req, res) -> res.status(serverStatus).sendHeaders())
 				                    .get("/ws", (req, res) -> {
@@ -65,14 +63,11 @@ class WebsocketClientOperationsTest {
 				                        return res.sendWebsocket((i, o) -> o.sendString(Mono.just("test")),
 				                                WebsocketServerSpec.builder().protocols(serverSubprotocol).build());
 				                    }))
-				          .wiretap(true)
 				          .bindNow();
 
 		Flux<String> response =
-				HttpClient.create()
-				          .port(httpServer.port())
-				          .wiretap(true)
-				          .headersWhen(h -> login(httpServer.port()).map(token -> h.set("Authorization", token)))
+				createClient(disposableServer.port())
+				          .headersWhen(h -> login(disposableServer.port()).map(token -> h.set("Authorization", token)))
 				          .websocket(WebsocketClientSpec.builder().protocols(clientSubprotocol).build())
 				          .uri("/ws")
 				          .handle((i, o) -> i.receive().asString())
@@ -82,14 +77,10 @@ class WebsocketClientOperationsTest {
 		StepVerifier.create(response)
 		            .expectError(WebSocketHandshakeException.class)
 		            .verify();
-
-		httpServer.disposeNow();
 	}
 
 	private Mono<String> login(int port) {
-		return HttpClient.create()
-		                 .port(port)
-		                 .wiretap(true)
+		return createClient(port)
 		                 .post()
 		                 .uri("/login")
 		                 .responseSingle((res, buf) -> Mono.just(res.status().code() + ""));
@@ -97,16 +88,12 @@ class WebsocketClientOperationsTest {
 
 	@Test
 	void testConfigureWebSocketVersion() {
-		DisposableServer httpServer = HttpServer.create()
-				.port(0)
+		disposableServer = createServer()
 				.handle((in, out) -> out.sendWebsocket((i, o) ->
 						o.sendString(Mono.just(in.requestHeaders().get("sec-websocket-version")))))
-				.wiretap(true)
 				.bindNow();
 
-		List<String> response = HttpClient.create()
-				.port(httpServer.port())
-				.wiretap(true)
+		List<String> response = createClient(disposableServer.port())
 				.websocket(WebsocketClientSpec.builder().version(WebSocketVersion.V08).build())
 				.uri("/test")
 				.handle((in, out) -> in.receive().aggregate().asString())
